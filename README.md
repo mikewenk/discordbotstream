@@ -8,7 +8,7 @@ This bot should NOT be used for anything that is not entertainment.  We'll leave
 
 # Why ELIZA? 
 
-I discovered Weizenbaum's ELIZA program at a user meeting in the 1980s.  At the time it was one of the only examples of natural language processing I had seen.  I was pretty young, don't recall the age, but I was younger than 11.  It was literally the first thing I ever saw that even attempted to interact as a person.  It interested me then, and I have never lost the fondness I have for it.  And why not.   
+I discovered Weizenbaum's ELIZA program at a Apple user meetup in the 1980s.  At the time it was one of the only examples of natural language processing I had seen.  I was pretty young, don't recall the age, but I was younger than 11.  It was literally the first thing I ever saw that even attempted to interact as a person.  It interested me then, and I have never lost the fondness I have for it.  And why not.   
 
 # Why Go? 
 
