@@ -16,24 +16,25 @@ limitations under the License.
 package cmd
 
 import (
+	"github.com/mikewenk/discordbotstream/elizabot/eliza"
 	"fmt"
+	"github.com/bwmarrin/discordgo"
+	"github.com/bwmarrin/disgord/x/mux"
+	"github.com/davecgh/go-spew/spew"
+	homedir "github.com/mitchellh/go-homedir"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"go.uber.org/zap"
 	"os"
 	"os/signal"
 	"syscall"
-	"github.com/caser/eliza"
-	"github.com/davecgh/go-spew/spew"
-	"github.com/spf13/cobra"
-	"go.uber.org/zap"
-	"github.com/bwmarrin/discordgo"
-	"github.com/bwmarrin/disgord/x/mux"
-	homedir "github.com/mitchellh/go-homedir"
-	"github.com/spf13/viper"
 )
 
 var router *mux.Mux
 var sugar *zap.SugaredLogger
 var cfgFile string
 var discordToken string
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "elizabot",
@@ -50,7 +51,7 @@ var rootCmd = &cobra.Command{
 			return
 		}
 		dg, err := discordgo.New(discordToken)
-		if err != nil { 
+		if err != nil {
 			sugar.Errorf("error while creating discordgo: %v", err)
 		}
 		// Open a websocket connection to Discord
@@ -60,7 +61,7 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		// Create the mux 
+		// Create the mux
 		initializeMux(dg)
 
 		// Wait for a CTRL-C
@@ -74,7 +75,8 @@ var rootCmd = &cobra.Command{
 
 	},
 }
-func messageHandler(ds *discordgo.Session,  mc *discordgo.MessageCreate ) { 
+
+func messageHandler(ds *discordgo.Session, mc *discordgo.MessageCreate) {
 	defer sugar.Sync()
 	sugar.Infof("mc=%v", spew.Sdump(nil))
 	// Ignore all messages created by the Bot account itself
@@ -82,20 +84,20 @@ func messageHandler(ds *discordgo.Session,  mc *discordgo.MessageCreate ) {
 		return
 	}
 	sugar.Infof("content=%v", mc.Content)
-	parsed := eliza.ParseInput(mc.Content) 
-	preproced := eliza.PreProcess(parsed)
-	result := eliza.PostProcess(parsed)
+//	preproced := eliza.PreProcess(parsed)
+	//result := eliza.PostProcess(parsed)
 
 	sugar.Infof("result=%v", result)
 	//ds.ChannelMessageSend(mc.ChannelID,fmt.Sprintf("Received: %v", mc.Content))
 	// Fetch the channel for this Message
 
 }
-func initializeMux(session *discordgo.Session) *mux.Mux { 
+func initializeMux(session *discordgo.Session) *mux.Mux {
 	var mux = mux.New()
 	session.AddHandler(messageHandler)
 	return mux
 }
+
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
