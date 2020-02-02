@@ -19,3 +19,8 @@ This bot creation will be streamed at https://www.twitch.tv/thecanth
 
 # Example Discord Server 
 https://discord.gg/ukm8ZHM
+
+# Let to do
+- Add unit tests
+- Code cleanup 
+- Limit eliza to a particular channel.  
