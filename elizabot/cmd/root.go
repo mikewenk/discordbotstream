@@ -16,18 +16,17 @@ limitations under the License.
 package cmd
 
 import (
-	"github.com/mikewenk/discordbotstream/elizabot/eliza"
 	"fmt"
-	"github.com/bwmarrin/discordgo"
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/bwmarrin/disgord/x/mux"
-	"github.com/davecgh/go-spew/spew"
+	"github.com/mikewenk/discordbotstream/elizabot/botcontroller"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 var router *mux.Mux
@@ -50,52 +49,21 @@ var rootCmd = &cobra.Command{
 			sugar.Infof("You must provide a Discord authentication token.")
 			return
 		}
-		dg, err := discordgo.New(discordToken)
-		if err != nil {
-			sugar.Errorf("error while creating discordgo: %v", err)
-		}
-		// Open a websocket connection to Discord
-		err = dg.Open()
-		if err != nil {
-			sugar.Errorf("error opening connection to Discord, %s\n", err)
-			os.Exit(1)
-		}
 
-		// Create the mux
-		initializeMux(dg)
+		err := botcontroller.BotInit(sugar, discordToken)
 
-		// Wait for a CTRL-C
-		sugar.Infof(`Now running. Press CTRL-C to exit.`)
-		sc := make(chan os.Signal, 1)
-		signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
-		<-sc
+		if err == nil {
+			sugar.Infof(`Now running. Press CTRL-C to exit.`)
+			// Wait for a CTRL-C
+			sc := make(chan os.Signal, 1)
+			signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+			<-sc
+		}
 
 		// Clean up
-		dg.Close()
+		botcontroller.BotClose()
 
 	},
-}
-
-func messageHandler(ds *discordgo.Session, mc *discordgo.MessageCreate) {
-	defer sugar.Sync()
-	sugar.Infof("mc=%v", spew.Sdump(nil))
-	// Ignore all messages created by the Bot account itself
-	if mc.Author.ID == ds.State.User.ID {
-		return
-	}
-	sugar.Infof("content=%v", mc.Content)
-//	preproced := eliza.PreProcess(parsed)
-	//result := eliza.PostProcess(parsed)
-
-	sugar.Infof("result=%v", result)
-	//ds.ChannelMessageSend(mc.ChannelID,fmt.Sprintf("Received: %v", mc.Content))
-	// Fetch the channel for this Message
-
-}
-func initializeMux(session *discordgo.Session) *mux.Mux {
-	var mux = mux.New()
-	session.AddHandler(messageHandler)
-	return mux
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
